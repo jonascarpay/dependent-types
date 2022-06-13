@@ -1,0 +1,16 @@
+cradle:
+  multi:
+    # - path: "ignore/"
+    #   config: {cradle: {none: }}
+
+    - path: "src"
+      config: {cradle: {cabal: {component: "lib:dependent-types-tutorial"}}}
+
+    - path: "app"
+      config: {cradle: {cabal: {component: "dependent-types-tutorial:dependent-types-tutorial-exe"}}}
+
+    - path: "test"
+      config: {cradle: {cabal: {component: "dependent-types-tutorial:dependent-types-tutorial-test"}}}
+
+    - path: "bench"
+      config: {cradle: {cabal: {component: "dependent-types-tutorial:dependent-types-tutorial-bench"}}}
