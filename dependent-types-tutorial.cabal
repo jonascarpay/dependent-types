@@ -49,9 +49,10 @@ test-suite dependent-types-tutorial-test
   hs-source-dirs: test
   main-is:        Spec.hs
   build-depends:
+    , containers
+    , dependent-types-tutorial
     , hspec
     , HUnit
-    , dependent-types-tutorial
     , QuickCheck
 
   ghc-options:    -threaded -rtsopts -with-rtsopts=-N
