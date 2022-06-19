@@ -21,51 +21,51 @@ data Expr
 instance IsString Expr where
   fromString = Var
 
-data VExpr
-  = NExpr NExpr
-  | VLam String VExpr
+data Value
+  = Neutral Neutral
+  | VLam String Value
   deriving (Eq, Show)
 
-data NExpr
+data Neutral
   = NVar String
-  | NApp NExpr VExpr
+  | NApp Neutral Value
   deriving (Eq, Show)
 
 free :: Expr -> Set String
 free (Var str) = Set.singleton str
 free (App f x) = free f <> free x
 free (Lam x body) = Set.delete x $ free body
-free (Typed e t) = free e
+free (Typed e _) = free e
 
-eval :: Expr -> VExpr
+eval :: Expr -> Value
 eval (App f x) = case eval f of
   VLam str body -> subst str (eval x) body
-  NExpr f' -> NExpr $ NApp f' (eval x)
+  Neutral f' -> Neutral $ NApp f' (eval x)
 eval (Typed e _) = eval e
-eval (Var str) = NExpr (NVar str)
+eval (Var str) = Neutral (NVar str)
 eval (Lam str body) = VLam str (eval body)
 
-substN :: String -> VExpr -> NExpr -> NExpr
+substN :: String -> Value -> Neutral -> Neutral
 substN var sub = go
   where
     go = undefined
 
-subst :: String -> VExpr -> VExpr -> VExpr
+subst :: String -> Value -> Value -> Value
 subst var sub = goV
   where
-    goN :: NExpr -> VExpr
+    goN :: Neutral -> Value
     goN (NVar str)
       | str == var = sub
-      | otherwise = NExpr (NVar str)
+      | otherwise = Neutral (NVar str)
     goN (NApp f x) = case goN f of
       VLam str body -> subst str (goV x) body
-      NExpr f' -> NExpr (NApp f' (goV x))
+      Neutral f' -> Neutral (NApp f' (goV x))
 
-    goV :: VExpr -> VExpr
+    goV :: Value -> Value
     goV (VLam str body)
       | str == var = VLam str body
       | otherwise = VLam str (goV body)
-    goV (NExpr nexpr) = goN nexpr
+    goV (Neutral nexpr) = goN nexpr
 
 -- >>> eval $ (Lam "const" (Lam "id" (App "const" "id" `App` "y")) `App` Lam "a" (Lam "b" "a")) `App` Lam "y" "y"
--- VLam "x" (NExpr (NVar "x"))
+-- VLam "y" (Neutral (NVar "y"))
