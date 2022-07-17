@@ -2,7 +2,6 @@
 
 module Lib where
 
-import Control.Monad
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.String (IsString (..))
@@ -76,7 +75,7 @@ data Context
 valid :: Context -> Bool
 valid Empty = True
 valid (TyCons _ ctx) = valid ctx
-valid (TrCons x τ ctx) = valid ctx && wellFormed ctx τ
+valid (TrCons _x τ ctx) = valid ctx && wellFormed ctx τ
 
 wellFormed :: Context -> Type -> Bool
 wellFormed ctx (TBase str) = isBaseIn ctx
@@ -106,6 +105,4 @@ infer ctx (Var str) = go ctx
 infer ctx (App f x) = case infer ctx f of
   Just (TFun τ τ') | hasType ctx x τ -> Just τ'
   _ -> Nothing
-infer ctx (Lam _ _) = Nothing -- Unannotated lambda expression
-
--- >>> infer (TrCons "y" "a" $ TyCons "a" Empty) ()
+infer _ctx (Lam _ _) = Nothing -- Unannotated lambda expression
