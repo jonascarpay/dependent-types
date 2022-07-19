@@ -6,18 +6,13 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.String (IsString (..))
 
-data Type
-  = TBase String
-  | TFun Type Type
-  deriving (Eq, Show)
-
-instance IsString Type where fromString = TBase
-
 data Expr
-  = Typed Expr Type
+  = Ann Expr Expr
+  | Star
   | Var String
   | App Expr Expr
   | Lam String Expr
+  | For String Expr Expr
   deriving (Eq, Show)
 
 instance IsString Expr where fromString = Var
@@ -36,13 +31,13 @@ free :: Expr -> Set String
 free (Var str) = Set.singleton str
 free (App f x) = free f <> free x
 free (Lam x body) = Set.delete x $ free body
-free (Typed e _) = free e
+free (Ann e _) = free e
 
 eval :: Expr -> Value
 eval (App f x) = case eval f of
   VLam str body -> subst str (eval x) body
   Neutral f' -> Neutral $ NApp f' (eval x)
-eval (Typed e _) = eval e
+eval (Ann e _) = eval e
 eval (Var str) = Neutral (NVar str)
 eval (Lam str body) = VLam str (eval body)
 
@@ -69,7 +64,7 @@ subst var sub = goV
 data Context
   = Empty
   | TyCons String Context
-  | TrCons String Type Context
+  | TrCons String Expr Context
   deriving (Show)
 
 valid :: Context -> Bool
