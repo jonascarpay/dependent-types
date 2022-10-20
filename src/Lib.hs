@@ -97,7 +97,7 @@ isType ctx (TFun τ τ') = isType ctx τ && isType ctx τ'
 
 check :: Context -> ExprC -> Type -> Bool
 check ctx (Lam str body) (TFun tf tx) = check (HasType str tf ctx) body tx
-check ctx (Lam str body) _ = False
+check _ (Lam str body) _ = False
 check ctx (ExprI expr) ty = infer ctx expr == Just ty
 
 infer :: Context -> ExprI -> Maybe Type
@@ -116,6 +116,5 @@ infer ctx (Var str) = go ctx
 infer ctx (App f x) = case infer ctx f of
   Just (TFun τ τ') | check ctx x τ -> Just τ'
   _ -> Nothing
-infer ctx (Lam _ _) = Nothing -- Unannotated lambda expression
 
 -- >>> infer (HasType "y" "a" $ HasKind "a" Empty) ()
